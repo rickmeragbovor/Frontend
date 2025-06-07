@@ -8,7 +8,7 @@ import {
   SOLUTION_DATA,
 } from "@/lib/data.ui";
 import { cn } from "@/lib/utils";
-import { Moon, Shield, Sun } from "lucide-react";
+import { ChevronUp, Moon, Shield, Sun } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Tomate from "/logo_tomate.svg";
@@ -62,6 +62,23 @@ export default function Home() {
 
   return (
     <div className="relative min-h-dvh bg-transparent bg-[linear-gradient(90deg,#0000000d_1px,transparent_1px),linear-gradient(180deg,#0000000d_1px,transparent_1px)] bg-[length:64px_64px] dark:bg-[linear-gradient(90deg,#ffffff1a_1px,transparent_1px),linear-gradient(180deg,#ffffff1a_1px,transparent_1px)] dark:bg-[length:64px_64px]">
+      <Button
+        onClick={(event) => {
+          event.preventDefault();
+          window.scrollTo({
+            top: 0,
+            behavior: "smooth",
+          });
+        }}
+        size="icon"
+        className={cn(
+          "fixed size-12 rounded-full bg-zinc-800 hover:bg-zinc-700 dark:bg-white dark:hover:bg-white/80 bottom-2 right-2 flex items-center justify-center transition duration-500 hover:cursor-pointer",
+          show ? "z-50 opacity-100" : "-z-50 opacity-0"
+        )}
+      >
+        <ChevronUp className="h-4 w-4" />
+      </Button>
+
       <nav className="md:fixed w-full h-20 flex items-center justify-center py-2 md:z-50">
         <div
           className={cn(
