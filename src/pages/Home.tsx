@@ -28,6 +28,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { motion } from "motion/react";
 
 export default function Home() {
   const [show, setShow] = useState<boolean>(false);
@@ -128,39 +129,97 @@ export default function Home() {
         </div>
       </nav>
 
-      <div className="h-dvh w-full flex flex-col items-center justify-center">
-        <Badge className="rounded-full py-1 px-3 md:py-2 md:px-5 flex items-center justify-center text-center dark:bg-red-500 dark:text-white">
-          <Shield className="fill-white" />
-          <span>Certified & Secure</span>
-        </Badge>
-        <div className="mt-5 w-full flex flex-col items-center justify-center">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+        className="h-dvh w-full flex flex-col items-center justify-center"
+      >
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ delay: 0.3, duration: 0.5 }}
+        >
+          <Badge className="rounded-full py-1 px-3 md:py-2 md:px-5 flex items-center justify-center text-center dark:bg-red-500 dark:text-white">
+            <Shield className="fill-white" />
+            <span>Certified & Secure</span>
+          </Badge>
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, duration: 0.8 }}
+          className="mt-5 w-full flex flex-col items-center justify-center"
+        >
           <h1 className="text-3xl md:text-6xl font-bold text-gray-900 leading-tight text-center dark:text-white">
-            <span className="text-red-500">
+            <motion.span
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.8, duration: 0.5 }}
+              className="text-red-500"
+            >
               IT expertise and technical services,
-            </span>{" "}
+            </motion.span>{" "}
             <br />
-            integration of IT solutions, software and hardware sales
+            <motion.span
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 1, duration: 0.5 }}
+            >
+              integration of IT solutions, software and hardware sales
+            </motion.span>
           </h1>
-          <p className="my-10 text-center text-sm md:text-lg text-gray-500 dark:text-gray-100 max-w-2xl mx-auto font-semibold">
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.2, duration: 0.8 }}
+            className="my-10 text-center text-sm md:text-lg text-gray-500 dark:text-gray-100 max-w-2xl mx-auto font-semibold"
+          >
             We offer a wide range of IT services, including maintenance,
             security, data backup, software development, and much more. We are
             here to help you succeed with tailored IT solutions.
-          </p>
-        </div>
-        <Button className="dark:text-white rounded-full hover:cursor-pointer text-sm text-center px-15 py-7 bg-gradient-to-r from-red-500 to-red-600 transition-all duration-500 hover:bg-gradient-to-l hover:from-red-500 hover:to-red-600">
-          Contact us
-        </Button>
-      </div>
-      <div className="w-full bg-transparent flex flex-col items-center justify-center rounded-t-[200px]">
-        <p className="text-lg md:text-4xl font-bold text-center text-red-500 my-5">
+          </motion.p>
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.4, duration: 0.5 }}
+          whileHover={{ scale: 1.05 }}
+        >
+          <Button className="dark:text-white rounded-full hover:cursor-pointer text-sm text-center px-15 py-7 bg-gradient-to-r from-red-500 to-red-600 transition-all duration-500 hover:bg-gradient-to-l hover:from-red-500 hover:to-red-600">
+            Contact us
+          </Button>
+        </motion.div>
+      </motion.div>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.8 }}
+        className="w-full bg-transparent flex flex-col items-center justify-center rounded-t-[200px]"
+      >
+        <motion.p
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.3, duration: 0.5 }}
+          className="text-lg md:text-4xl font-bold text-center text-red-500 my-5"
+        >
           Services
-        </p>
-        <div className="grid grid-cols-[100%] grid-row-6 gap-y-3 md:grid-cols-[300px_300px_300px] md:grid-row-3 md:gap-5 px-2 md:px-10 mb-5">
-          {SERVICES_DATA.map((item) => {
+        </motion.p>
+        <motion.div
+          initial={{ y: 30, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.5, duration: 0.8 }}
+          className="grid grid-cols-[100%] grid-row-6 gap-y-3 md:grid-cols-[300px_300px_300px] md:grid-row-3 md:gap-5 px-2 md:px-10 mb-5"
+        >
+          {SERVICES_DATA.map((item, index) => {
             return (
-              <div
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.7 + index * 0.1, duration: 0.5 }}
                 key={item.title}
                 className="group shadow hover:shadow-lg h-52 border dark:border-red-500 bg-white hover:border-red-500 hover:-translate-y-1 transition duration-500 rounded-lg p-4 hover:cursor-pointer"
+                whileHover={{ scale: 1.02 }}
               >
                 <IconRenderer
                   name={item.icon}
@@ -172,17 +231,37 @@ export default function Home() {
                 <p className="text-sm text-gray-500 dark:text-gray-800">
                   {item.description}
                 </p>
-              </div>
+              </motion.div>
             );
           })}
-        </div>
-      </div>
-      <div className="w-full bg-transparent flex flex-col items-center justify-center py-20">
-        <p className="text-lg md:text-4xl font-bold text-center text-red-500 mb-10">
+        </motion.div>
+      </motion.div>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+        className="w-full bg-transparent flex flex-col items-center justify-center py-20"
+      >
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          className="text-lg md:text-4xl font-bold text-center text-red-500 mb-10"
+        >
           Solutions
-        </p>
-        <div className="w-full max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 px-4">
-          <div className="flex flex-col gap-4 justify-center">
+        </motion.p>
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, duration: 0.8 }}
+          className="w-full max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 px-4"
+        >
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.7, duration: 0.5 }}
+            className="flex flex-col gap-4 justify-center"
+          >
             <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
               Custom IT Solutions for Your Business
             </h3>
@@ -197,16 +276,27 @@ export default function Home() {
               <li>Network security implementation</li>
               <li>Software integration services</li>
             </ul>
-            <Button className="w-full text-white hover:cursor-pointer mt-4 rounded-full px-8 py-6 bg-gradient-to-r from-red-500 to-red-600 hover:bg-gradient-to-l transition-all duration-500">
-              Learn More
-            </Button>
-          </div>
-          <div className="h-[400px] rounded-lg overflow-hidden flex items-center justify-center">
+            <motion.div whileHover={{ scale: 1.05 }}>
+              <Button className="w-full text-white hover:cursor-pointer mt-4 rounded-full px-8 py-6 bg-gradient-to-r from-red-500 to-red-600 hover:bg-gradient-to-l transition-all duration-500">
+                Learn More
+              </Button>
+            </motion.div>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.9, duration: 0.5 }}
+            className="h-[400px] rounded-lg overflow-hidden flex items-center justify-center"
+          >
             <div className="grid grid-cols-[180px_180px] grid-rows-[150px_150px] gap-4">
-              {SOLUTION_DATA.map((stat) => (
-                <div
+              {SOLUTION_DATA.map((stat, index) => (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 1.1 + index * 0.1, duration: 0.5 }}
                   key={stat.title}
                   className="col-span-1 row-span-1 flex flex-col items-center justify-center gap-y-1 border rounded-lg bg-white"
+                  whileHover={{ scale: 1.05 }}
                 >
                   <p className="text-red-500 font-bold text-3xl">
                     {stat.value}
@@ -217,22 +307,42 @@ export default function Home() {
                   <small className="text-center text-gray-500">
                     {stat.description}
                   </small>
-                </div>
+                </motion.div>
               ))}
             </div>
-          </div>
-        </div>
-      </div>
-      <div className="w-full bg-transparent flex flex-col items-center justify-center py-20">
-        <p className="text-lg md:text-4xl font-bold text-center text-red-500 mb-10">
+          </motion.div>
+        </motion.div>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+        className="w-full bg-transparent flex flex-col items-center justify-center py-20"
+      >
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          className="text-lg md:text-4xl font-bold text-center text-red-500 mb-10"
+        >
           Portfolio
-        </p>
-        <div className="self-center grid grid-cols-[100%] md:grid-cols-[250px_250px_250px] gap-8 px-4">
-          {PORTFOLIO_DATA.slice(0, 3).map((item) => {
+        </motion.p>
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, duration: 0.8 }}
+          className="self-center grid grid-cols-[100%] md:grid-cols-[250px_250px_250px] gap-8 px-4"
+        >
+          {PORTFOLIO_DATA.slice(0, 3).map((item, index) => {
             return (
-              <div
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.7 + index * 0.2, duration: 0.5 }}
                 key={item.name}
                 className="group hover:border-red-500 dark:border-red-500 overflow-hidden hover:-translate-y-1 rounded-lg shadow-lg hover:shadow-xl transition-all duration-500 hover:cursor-pointer border"
+                whileHover={{ scale: 1.05 }}
               >
                 <div className="relative h-52 flex items-center justify-center bg-white p-6 flex-col gap-y-2">
                   <img
@@ -247,59 +357,100 @@ export default function Home() {
                     {item.description}
                   </p>
                 </div>
-              </div>
+              </motion.div>
             );
           })}
-        </div>
+        </motion.div>
 
         {PORTFOLIO_DATA.length > 2 && (
-          <Button className="mt-10 rounded-full px-18 hover:cursor-pointer dark:text-white py-6 bg-gradient-to-r from-red-500 to-red-600 hover:bg-gradient-to-l transition-all duration-500">
-            View All Projects
-          </Button>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.3, duration: 0.5 }}
+            whileHover={{ scale: 1.05 }}
+          >
+            <Button className="mt-10 rounded-full px-18 hover:cursor-pointer dark:text-white py-6 bg-gradient-to-r from-red-500 to-red-600 hover:bg-gradient-to-l transition-all duration-500">
+              View All Projects
+            </Button>
+          </motion.div>
         )}
-      </div>
+      </motion.div>
 
-      <div className="w-full bg-transparent flex flex-col items-center justify-center rounded-t-[200px] gap-y-5">
-        <p className="text-lg md:text-4xl font-bold text-center text-red-500">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+        className="w-full bg-transparent flex flex-col items-center justify-center rounded-t-[200px] gap-y-5"
+      >
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          className="text-lg md:text-4xl font-bold text-center text-red-500"
+        >
           Our partners
-        </p>
-        <p className="text-sm text-center text-gray-500 dark:text-gray-100 max-w-2xl mx-auto font-semibold">
+        </motion.p>
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, duration: 0.5 }}
+          className="text-sm text-center text-gray-500 dark:text-gray-100 max-w-2xl mx-auto font-semibold"
+        >
           We are proud to have partnered with some of the best IT companies in
           the industry. Our partners have provided us with the resources and
           expertise we need to deliver high-quality IT solutions.
-        </p>
+        </motion.p>
 
-        <div className="w-full h-30 mb-5 flex items-center justify-center gap-x-10">
-          <div className="size-20 rounded-lg border border-slate-300 flex items-center justify-center bg-white">
-            <div className="text-2xl font-bold bg-gradient-to-r from-blue-500 to-blue-700 text-transparent bg-clip-text">
-              TC
-            </div>
-          </div>
-          <div className="size-20 rounded-lg border border-slate-300 flex items-center justify-center bg-white">
-            <div className="text-2xl font-bold bg-gradient-to-r from-green-500 to-green-700 text-transparent bg-clip-text">
-              DX
-            </div>
-          </div>
-          <div className="size-20 rounded-lg border border-slate-300 flex items-center justify-center bg-white">
-            <div className="text-2xl font-bold bg-gradient-to-r from-purple-500 to-purple-700 text-transparent bg-clip-text">
-              AI
-            </div>
-          </div>
-          <div className="size-20 rounded-lg border border-slate-300 flex items-center justify-center bg-white">
-            <div className="text-2xl font-bold bg-gradient-to-r from-orange-500 to-orange-700 text-transparent bg-clip-text">
-              VR
-            </div>
-          </div>
-        </div>
-      </div>
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7, duration: 0.8 }}
+          className="w-full h-30 mb-5 flex items-center justify-center gap-x-10"
+        >
+          {[
+            { text: "TC", gradient: "from-blue-500 to-blue-700" },
+            { text: "DX", gradient: "from-green-500 to-green-700" },
+            { text: "AI", gradient: "from-purple-500 to-purple-700" },
+            { text: "VR", gradient: "from-orange-500 to-orange-700" },
+          ].map((partner, index) => (
+            <motion.div
+              key={partner.text}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.9 + index * 0.1, duration: 0.5 }}
+              whileHover={{ scale: 1.1 }}
+              className="size-20 rounded-lg border border-slate-300 flex items-center justify-center bg-white"
+            >
+              <div
+                className={`text-2xl font-bold bg-gradient-to-r ${partner.gradient} text-transparent bg-clip-text`}
+              >
+                {partner.text}
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
+      </motion.div>
 
-      <div className="w-full bg-transparent flex flex-col items-center justify-center rounded-t-[200px] gap-y-5 mb-10">
-        <p className="text-lg md:text-4xl font-bold text-center text-red-500">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+        className="w-full bg-transparent flex flex-col items-center justify-center rounded-t-[200px] gap-y-5 mb-10"
+      >
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          className="text-lg md:text-4xl font-bold text-center text-red-500"
+        >
           Contact
-        </p>
+        </motion.p>
 
         <Form {...form}>
-          <form
+          <motion.form
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5, duration: 0.8 }}
             className="w-250 flex flex-col items-center gap-y-5"
             onSubmit={form.handleSubmit(onSubmit)}
           >
@@ -339,15 +490,17 @@ export default function Home() {
                 </FormItem>
               )}
             />
-            <Button
-              type="submit"
-              className="w-100 rounded-full px-18 hover:cursor-pointer dark:text-white py-6 bg-gradient-to-r from-red-500 to-red-600 hover:bg-gradient-to-l transition-all duration-500"
-            >
-              Send
-            </Button>
-          </form>
+            <motion.div whileHover={{ scale: 1.05 }}>
+              <Button
+                type="submit"
+                className="w-100 rounded-full px-18 hover:cursor-pointer dark:text-white py-6 bg-gradient-to-r from-red-500 to-red-600 hover:bg-gradient-to-l transition-all duration-500"
+              >
+                Send
+              </Button>
+            </motion.div>
+          </motion.form>
         </Form>
-      </div>
+      </motion.div>
       <div className="w-full min-h-80 bg-black dark:bg-zinc-900 p-10 grid grid-cols-3">
         <div className="text-white">
           <p className="text-xl text-red-500 uppercase font-bold mb-5">
