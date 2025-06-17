@@ -10,11 +10,11 @@ export default defineConfig({
     },
   },
   server: {allowedHosts: [
-      '8361-196-170-112-13.ngrok-free.app'
+      'd70d-196-170-112-13.ngrok-free.app'
     ],
     proxy: {
       '/api': {
-        target: 'https://8361-196-170-112-13.ngrok-free.app',
+        target: 'https://d70d-196-170-112-13.ngrok-free.app',
         changeOrigin: true,
         secure: false, // car ngrok utilise un certificat auto-signé
         rewrite: (path) => path.replace(/^\/api/, ''),

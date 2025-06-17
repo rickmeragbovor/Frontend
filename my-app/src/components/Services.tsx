@@ -19,7 +19,7 @@ const services = [
   {
     icon: <Settings className="text-red-600 w-8 h-8 mb-4" />,
     title: "Systèmes informatisés de gestion",
-    description: "Mise en place de solutions certifiées TOMATE pour une gestion efficace.",
+    description: "Mise en place de solutions certifiées  pour une gestion efficace.",
   },
   {
     icon: <BookOpen className="text-red-600 w-8 h-8 mb-4" />,
