@@ -1,26 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "../api/axios";
 import GestionTicket from "../components/GestionTicket";
-
-interface Ticket {
-  id: number;
-  nom: string;
-  prestation: string; // doit contenir le nom déjà (pas l'ID)
-  statut: string;
-  societe?: string;
-  role?: string;
-  telephone?: string;
-  description?: string;
-}
-
-interface User {
-  id: number;
-  nom: string;
-  prenom: string;
-  email: string;
-  role?: string; // ex: "admin" ou "technicien"
-}
+import type { Ticket, User } from "../types";
 
 const Dashboard = () => {
   const [tickets, setTickets] = useState<Ticket[]>([]);
@@ -28,15 +10,18 @@ const Dashboard = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [ticketActif, setTicketActif] = useState<Ticket | null>(null);
+  const [timers, setTimers] = useState<Record<number, number>>({}); // temps écoulé par ticket id
+
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const navigate = useNavigate();
 
+  // Chargement initial
   useEffect(() => {
     const token = localStorage.getItem("access");
     if (!token) {
       navigate("/login");
       return;
     }
-
     axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
     const fetchData = async () => {
@@ -45,10 +30,21 @@ const Dashboard = () => {
           axios.get<Ticket[]>("/tickets/"),
           axios.get<User>("/me/"),
         ]);
-        setTickets(ticketRes.data);
+        // Normalisation
+        const normalizedTickets = ticketRes.data.map((t) => ({
+          ...t,
+          societe:
+            typeof t.societe === "string" ? { nom: t.societe } : t.societe,
+          role: typeof t.role === "string" ? { nom: t.role } : t.role,
+          description_type:
+            typeof t.description_type === "string"
+              ? { nom: t.description_type }
+              : t.description_type,
+        }));
+        setTickets(normalizedTickets);
         setUser(userRes.data);
       } catch (error) {
-        console.error("Erreur lors du chargement des données:", error);
+        console.error("Erreur lors du chargement:", error);
         localStorage.removeItem("access");
         localStorage.removeItem("refresh");
         navigate("/login");
@@ -56,14 +52,45 @@ const Dashboard = () => {
         setLoading(false);
       }
     };
-
     fetchData();
   }, [navigate]);
+
+  // Gestion timer : incrémente le temps du ticket actif chaque seconde
+  useEffect(() => {
+    if (ticketActif) {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      intervalRef.current = setInterval(() => {
+        setTimers((prev) => ({
+          ...prev,
+          [ticketActif.id]: (prev[ticketActif.id] ?? 0) + 1,
+        }));
+      }, 1000);
+    } else {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    }
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+  }, [ticketActif]);
 
   const handleCloture = (ticketId: number) => {
     setTickets((prev) =>
       prev.map((t) => (t.id === ticketId ? { ...t, statut: "cloturé" } : t))
     );
+    // Supprimer timer du ticket clôturé
+    setTimers((prev) => {
+      const copy = { ...prev };
+      delete copy[ticketId];
+      return copy;
+    });
+    setShowModal(false);
+    setTicketActif(null);
   };
 
   const handleLogout = () => {
@@ -73,7 +100,6 @@ const Dashboard = () => {
   };
 
   const handleEscalader = (ticket: Ticket) => {
-    // TODO: Logique d'escalade, ici un simple alert
     alert(`Ticket ${ticket.id} escaladé !`);
   };
 
@@ -89,12 +115,9 @@ const Dashboard = () => {
     );
   }
 
-  const isAdmin =
-    user.role === "admin" ||
-    user.role === "administrateur" ||
-    user.email.toLowerCase().includes("rickmer");
-  const isTechnicien =
-    user.role === "technicien" || user.email.toLowerCase().includes("kossivi");
+  // Formatage du temps (secondes -> "Xm Ys")
+  const formatTemps = (sec: number) =>
+    `${Math.floor(sec / 60)}m ${sec % 60}s`;
 
   return (
     <div className="flex h-screen w-screen bg-gray-100 text-gray-800">
@@ -110,40 +133,7 @@ const Dashboard = () => {
 
         <nav className="flex-1 space-y-3 text-sm text-gray-600">
           <div className="font-semibold text-red-500">Tableau de bord</div>
-
-          {isAdmin && (
-            <>
-              <button className="px-4 py-2 text-white bg-red-600 rounded hover:bg-red-700">
-                Utilisateurs
-              </button>
-              <button className="px-4 py-2 text-white bg-red-600 rounded hover:bg-red-700">
-                États
-              </button>
-              <button className="px-4 py-2 text-white bg-red-600 rounded hover:bg-red-700">
-                Statistiques
-              </button>
-              <button className="px-4 py-2 text-white bg-red-600 rounded hover:bg-red-700">
-                Tickets
-              </button>
-              <button className="px-4 py-2 text-white bg-red-600 rounded hover:bg-red-700">
-                Historiques
-              </button>
-            </>
-          )}
-
-          {isTechnicien && (
-            <>
-              <div className="cursor-pointer hover:text-red-600">Tickets</div>
-              <div className="cursor-pointer hover:text-red-600">Historiques</div>
-            </>
-          )}
-
-          {!isAdmin && !isTechnicien && (
-            <>
-              <div className="cursor-pointer hover:text-red-600">Tickets</div>
-            </>
-          )}
-
+          {/* Boutons ici */}
           <button
             onClick={handleLogout}
             className="text-left text-red-600 hover:underline mt-4"
@@ -155,41 +145,8 @@ const Dashboard = () => {
 
       {/* Main Content */}
       <main className="flex-1 p-8 overflow-auto bg-gray-50">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold mb-1">Hey, {user.prenom}!</h1>
-          {isAdmin && (
-            <p className="text-red-600 font-semibold">
-              Vous êtes connecté en tant qu'administrateur
-            </p>
-          )}
-          {isTechnicien && (
-            <p className="text-red-600 font-semibold">
-              Vous êtes connecté en tant que technicien
-            </p>
-          )}
-        </div>
+        <h1 className="text-2xl font-bold mb-6">Bonjour, {user.prenom}!</h1>
 
-        {/* Stat Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-xl shadow text-center">
-            <h2 className="text-sm font-semibold mb-1">Solde</h2>
-            <p className="text-3xl font-bold text-red-600">$19,453.43</p>
-          </div>
-
-          <div className="bg-white p-6 rounded-xl shadow text-center">
-            <h2 className="text-sm font-semibold mb-1">Tickets</h2>
-            <p className="text-2xl font-bold text-red-600">{tickets.length}</p>
-          </div>
-
-          {isAdmin && (
-            <div className="bg-white p-6 rounded-xl shadow text-center">
-              <h2 className="text-sm font-semibold mb-1">Utilisateurs</h2>
-              <p className="text-2xl font-bold text-red-600">--</p>
-            </div>
-          )}
-        </div>
-
-        {/* Table Tickets */}
         <div className="bg-white p-6 rounded-xl shadow">
           <h2 className="text-2xl font-bold mb-4 text-red-400">Derniers tickets</h2>
           {tickets.length === 0 ? (
@@ -198,67 +155,89 @@ const Dashboard = () => {
             <table className="w-full text-left border border-gray-200">
               <thead className="bg-gray-100">
                 <tr>
-                  <th className="p-3 border-b">ID</th>
-                  <th className="p-3 border-b">Nom</th>
-                  <th className="p-3 border-b">Prestation</th>
-                  <th className="p-3 border-b">Statut</th>
+                  <th className="p-3 border-b">N°</th>
+                  <th className="p-3 border-b">Noms</th>
+                  <th className="p-3 border-b">Prestations</th>
+                  <th className="p-3 border-b">Statuts</th>
                   <th className="p-3 border-b">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {tickets.map((ticket) => (
-                  <tr key={ticket.id} className="hover:bg-gray-50">
-                    <td className="p-3 border-b">{`TETK00${ticket.id}`}</td>
-                    <td className="p-3 border-b">{ticket.nom}</td>
-                    <td className="p-3 border-b">{ticket.prestation}</td>
-                    <td className="p-3 border-b">
-                      <span className="text-sm px-2 py-1 rounded-full bg-red-100 text-red-600">
-                        {ticket.statut}
-                      </span>
-                    </td>
-                    <td className="p-3 border-b flex space-x-2">
-                      {/* Bouton Gérer (désactivé si clôturé) */}
-                      {ticket.statut === "cloturé" ? (
-                        <button
-                          className="text-sm px-3 py-1 bg-gray-400 text-white rounded cursor-not-allowed"
-                          disabled
-                        >
-                          Clôturé
-                        </button>
-                      ) : (
-                        <button
-                          className="text-sm px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
-                          onClick={() => {
-                            setTicketActif(ticket);
-                            setShowModal(true);
-                          }}
-                        >
-                          Gérer
-                        </button>
-                      )}
+                {tickets.map((ticket) => {
+                  const isAnotherTicketActive =
+                    ticketActif !== null && ticketActif.id !== ticket.id;
 
-                      {/* Bouton Escalader (toujours actif) */}
-                      <button
-                        className="text-sm px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600"
-                        onClick={() => handleEscalader(ticket)}
-                      >
-                        Escalader
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                  return (
+                    <tr key={ticket.id} className="hover:bg-gray-50">
+                      <td className="p-3 border-b">{`TETK00${ticket.id}`}</td>
+                      <td className="p-3 border-b">{ticket.nom}</td>
+                      <td className="p-3 border-b">{ticket.prestation}</td>
+                      <td className="p-3 border-b">
+                        <span className="text-sm px-2 py-1 rounded-full bg-red-100 text-red-600">
+                          {ticket.statut}
+                        </span>
+                      </td>
+                      <td className="p-3 border-b flex space-x-4 items-center">
+                        {ticket.statut === "cloturé" ? (
+                          <button
+                            className="text-sm px-3 py-1 bg-gray-400 text-white rounded cursor-not-allowed"
+                            disabled
+                          >
+                            Clôturé
+                          </button>
+                        ) : (
+                          <>
+                            <button
+                              className={`text-sm px-3 py-1 rounded text-white ${
+                                isAnotherTicketActive
+                                  ? "bg-gray-400 cursor-not-allowed"
+                                  : "bg-blue-600 hover:bg-blue-700"
+                              }`}
+                              onClick={() => {
+                                if (!isAnotherTicketActive) {
+                                  setTicketActif(ticket);
+                                  setShowModal(true);
+                                  setTimers((prev) => ({
+                                    ...prev,
+                                    [ticket.id]: prev[ticket.id] ?? 0,
+                                  }));
+                                }
+                              }}
+                              disabled={isAnotherTicketActive}
+                            >
+                              Gérer
+                            </button>
+                            {/* Affichage du temps écoulé sur le bouton si > 0 */}
+                            {timers[ticket.id] > 0 && (
+                              <span className="text-gray-700 text-sm">
+                                {formatTemps(timers[ticket.id])}
+                              </span>
+                            )}
+                          </>
+                        )}
+                        <button
+                          className="text-sm px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+                          onClick={() => handleEscalader(ticket)}
+                        >
+                          Escalader
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           )}
         </div>
       </main>
 
-      {/* MODALE de gestion */}
+      {/* Modale gestion ticket */}
       {showModal && ticketActif && (
         <GestionTicket
           ticket={ticketActif}
           onClose={() => setShowModal(false)}
           onCloture={handleCloture}
+          tempsEcoule={timers[ticketActif.id] ?? 0}
         />
       )}
     </div>

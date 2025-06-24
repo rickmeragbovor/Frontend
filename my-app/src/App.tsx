@@ -11,6 +11,7 @@ import Footer from "./components/Footer";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import TicketForm from "./pages/TicketForm";
+import ConfirmationPage from "./pages/ConfirmationPage";
 
 function Home() {
   const heroRef = useRef<HTMLElement>(null);
@@ -66,7 +67,8 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/support" element={<TicketForm/>} />
         <Route path="/dashboard" element={<Dashboard/>} />
-         
+        <Route path="/confirm-cloture/:token" element={<ConfirmationPage />} />
+
       </Routes>
     </Router>
   );
