@@ -9,7 +9,8 @@ import Partners from "./components/Partners";
 import Contact from "./components/Contact";
 import Footer from "./components/Footer";
 import Login from "./pages/Login";
-import Support from "./pages/Support";
+import Dashboard from "./pages/Dashboard";
+import TicketForm from "./pages/TicketForm";
 
 function Home() {
   const heroRef = useRef<HTMLElement>(null);
@@ -63,7 +64,9 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/support" element={<Support/>} />
+        <Route path="/support" element={<TicketForm/>} />
+        <Route path="/dashboard" element={<Dashboard/>} />
+         
       </Routes>
     </Router>
   );
