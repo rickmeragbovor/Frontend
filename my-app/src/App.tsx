@@ -8,6 +8,7 @@ import Services from "./components/Services";
 import Partners from "./components/Partners";
 import Contact from "./components/Contact";
 import Footer from "./components/Footer";
+
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import TicketForm from "./pages/TicketForm";
@@ -65,10 +66,16 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/support" element={<TicketForm/>} />
-        <Route path="/dashboard" element={<Dashboard/>} />
+        <Route path="/support" element={<TicketForm />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        
+        {/* ✅ Redirection par e-mail */}
+        
         <Route path="/confirm-cloture/:token" element={<ConfirmationPage />} />
+        <Route path="/confirmation" element={<ConfirmationPage />} />
 
+        {/* ✅ Page Not Found */}
+        <Route path="*" element={<p className="text-center mt-10 text-red-600 text-xl">404 - Page non trouvée</p>} />
       </Routes>
     </Router>
   );
