@@ -1,6 +1,8 @@
+// src/pages/Login.tsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "../api/axios"; // configure axios avec l’URL de base
+import axios from "../api/axios";
+import { toast } from "react-toastify";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -22,10 +24,11 @@ const Login = () => {
       localStorage.setItem("access", response.data.access);
       localStorage.setItem("refresh", response.data.refresh);
 
-      alert("Bienvenue !");
+      toast.success("Bienvenue !");
       navigate("/dashboard");
-    } catch (error) {
+    } catch (error: any) {
       setErreur("Identifiants invalides. Veuillez réessayer.");
+      toast.error("Identifiants invalides. Veuillez réessayer.");
     }
   };
 
@@ -36,17 +39,13 @@ const Login = () => {
       </h1>
 
       <div className="w-full max-w-sm bg-gray-50 p-6 sm:p-8 rounded-2xl shadow-md border border-gray-200">
-        <h2 className="text-2xl font-bold text-red-400 text-center mb-6">
-          Connexion
-        </h2>
+        <h2 className="text-2xl font-bold text-red-400 text-center mb-6">Connexion</h2>
 
         <form className="space-y-4 sm:space-y-5" onSubmit={handleLogin}>
           {erreur && <p className="text-red-600">{erreur}</p>}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Email
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
             <input
               type="email"
               value={email}
@@ -56,10 +55,9 @@ const Login = () => {
               required
             />
           </div>
+
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Mot de passe
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Mot de passe</label>
             <input
               type="password"
               value={password}
@@ -69,6 +67,7 @@ const Login = () => {
               required
             />
           </div>
+
           <button
             type="submit"
             className="w-full bg-red-600 text-white py-2 rounded-lg font-semibold hover:bg-red-700 transition"

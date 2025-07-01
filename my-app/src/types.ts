@@ -1,5 +1,11 @@
 // src/types.ts
 export interface Ticket {
+  description_type_detail: any;
+  prenom: string;
+  prestation_detail: any;
+  role_detail: any;
+  societe_detail: any;
+  description: string;
   id: number;
   nom: string;
   prestation: string;

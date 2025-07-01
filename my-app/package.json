@@ -12,17 +12,21 @@
   "dependencies": {
     "@lottiefiles/react-lottie-player": "^3.6.0",
     "axios": "^1.10.0",
+    "imask": "^7.6.1",
     "lottie-react": "^2.4.1",
     "lucide-react": "^0.513.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "react-router-dom": "^7.6.2"
+    "react-imask": "^7.6.1",
+    "react-router-dom": "^7.6.2",
+    "react-toastify": "^11.0.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",
     "@types/node": "^22.15.29",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
+    "@types/react-input-mask": "^3.0.6",
     "@vitejs/plugin-react": "^4.4.1",
     "autoprefixer": "^10.4.21",
     "eslint": "^9.25.0",

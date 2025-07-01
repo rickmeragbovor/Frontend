@@ -1,5 +1,8 @@
 import { useState, useEffect } from "react";
 import axios from "../api/axios";
+import { IMaskInput } from "react-imask";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 // Types explicites
 interface Societe {
@@ -75,7 +78,9 @@ const TicketForm = () => {
 
     const numericFields = ["role", "societe", "prestation", "description_type"];
     const parsedValue = numericFields.includes(name)
-      ? value !== "" ? Number(value) : ""
+      ? value !== ""
+        ? Number(value)
+        : ""
       : value;
 
     setFormData((prev) => ({ ...prev, [name]: parsedValue }));
@@ -95,9 +100,17 @@ const TicketForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    const payload = {
+      ...formData,
+      societe: formData.societe === "" ? null : formData.societe,
+      prestation: formData.prestation === "" ? null : formData.prestation,
+      role: formData.role === "" ? null : formData.role,
+      description_type: formData.description_type === "" ? null : formData.description_type,
+    };
+
     try {
-      await axios.post("/create-ticket/", formData);
-      alert("Ticket enregistré avec succès !");
+      await axios.post("/create-ticket/", payload);
+      toast.success("🎉 Votre ticket a été bien enregistré !");
       setFormData({
         nom: "",
         prenom: "",
@@ -112,7 +125,7 @@ const TicketForm = () => {
       setPrestations([]);
     } catch (error) {
       console.error("Erreur lors de l'enregistrement du ticket :", error);
-      alert("Erreur lors de l'envoi du ticket.");
+      toast.error("❌ Une erreur est survenue lors de l'envoi.");
     }
   };
 
@@ -154,12 +167,18 @@ const TicketForm = () => {
             required
             className="p-3 border rounded-md"
           />
-          <input
-            type="tel"
-            name="telephone"
+
+          {/* Téléphone avec IMaskInput */}
+          <IMaskInput
+            mask="+228-00-00-00-00"
+            definitions={{ "0": /[0-9]/ }}
+            unmask={false}
             value={formData.telephone}
-            onChange={handleChange}
-            placeholder="Téléphone"
+            onAccept={(value: any) =>
+              setFormData((prev) => ({ ...prev, telephone: value }))
+            }
+            name="telephone"
+            placeholder="+228-XX-XX-XX-XX"
             required
             className="p-3 border rounded-md"
           />
@@ -244,6 +263,8 @@ const TicketForm = () => {
           </button>
         </div>
       </form>
+
+      <ToastContainer position="top-right" autoClose={5000} />
     </div>
   );
 };

@@ -14,6 +14,14 @@ import Dashboard from "./pages/Dashboard";
 import TicketForm from "./pages/TicketForm";
 import ConfirmationPage from "./pages/ConfirmationPage";
 
+import ProtectedRoute from "./components/ProtectedRoute"; // ✅
+import GuestRoute from "./components/GuestRoute"; // ✅
+
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import Ticketing from "./pages/Ticketing";
+import Stats from "./pages/Stats";
+
 function Home() {
   const heroRef = useRef<HTMLElement>(null);
   const servicesRef = useRef<HTMLElement>(null);
@@ -63,19 +71,58 @@ function Home() {
 function App() {
   return (
     <Router>
+      <ToastContainer
+        position="top-center"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
+
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/support" element={<TicketForm />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        
-        {/* ✅ Redirection par e-mail */}
-        
-        <Route path="/confirm-cloture/:token" element={<ConfirmationPage />} />
-        <Route path="/confirmation" element={<ConfirmationPage />} />
+        <Route path="/ticketing" element={<Ticketing />} />
+        <Route path="/stats" element={<Stats/>} />
 
-        {/* ✅ Page Not Found */}
-        <Route path="*" element={<p className="text-center mt-10 text-red-600 text-xl">404 - Page non trouvée</p>} />
+        {/* ✅ Route login protégée si déjà connecté */}
+        <Route
+          path="/login"
+          element={
+            <GuestRoute>
+              <Login />
+            </GuestRoute>
+          }
+        />
+
+        <Route path="/support" element={<TicketForm />} />
+
+        {/* ✅ Dashboard protégé */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Redirection de confirmation par email */}
+        <Route path="/confirm-cloture/:token" element={<ConfirmationPage />} />
+
+        {/* 404 */}
+        <Route
+          path="*"
+          element={
+            <p className="text-center mt-10 text-red-600 text-xl">
+              404 - Page non trouvée
+            </p>
+          }
+        />
       </Routes>
     </Router>
   );
