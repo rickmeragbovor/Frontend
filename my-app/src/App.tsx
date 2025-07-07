@@ -1,4 +1,3 @@
-// src/App.tsx
 import { useRef } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
@@ -14,13 +13,15 @@ import Dashboard from "./pages/Dashboard";
 import TicketForm from "./pages/TicketForm";
 import ConfirmationPage from "./pages/ConfirmationPage";
 
-import ProtectedRoute from "./components/ProtectedRoute"; // ✅
-import GuestRoute from "./components/GuestRoute"; // ✅
+import ProtectedRoute from "./components/ProtectedRoute";
+import GuestRoute from "./components/GuestRoute";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
 import Ticketing from "./pages/Ticketing";
 import Stats from "./pages/Stats";
+import GestTech from "./pages/GestTech";
 
 function Home() {
   const heroRef = useRef<HTMLElement>(null);
@@ -85,11 +86,12 @@ function App() {
       />
 
       <Routes>
+        {/* ✅ Accès public */}
         <Route path="/" element={<Home />} />
-        <Route path="/ticketing" element={<Ticketing />} />
-        <Route path="/stats" element={<Stats/>} />
+        <Route path="/support" element={<TicketForm />} />
+        <Route path="/confirm-cloture/:token" element={<ConfirmationPage />} />
 
-        {/* ✅ Route login protégée si déjà connecté */}
+        {/* ✅ Routes publiques protégées */}
         <Route
           path="/login"
           element={
@@ -99,9 +101,7 @@ function App() {
           }
         />
 
-        <Route path="/support" element={<TicketForm />} />
-
-        {/* ✅ Dashboard protégé */}
+        {/* ✅ Routes privées */}
         <Route
           path="/dashboard"
           element={
@@ -111,10 +111,35 @@ function App() {
           }
         />
 
-        {/* Redirection de confirmation par email */}
-        <Route path="/confirm-cloture/:token" element={<ConfirmationPage />} />
+        <Route
+          path="/ticketing"
+          element={
+            <ProtectedRoute>
+              <Ticketing />
+            </ProtectedRoute>
+          }
+        />
 
-        {/* 404 */}
+        <Route
+          path="/stats"
+          element={
+            <ProtectedRoute>
+              <Stats />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* ✅ Route réservée aux admin ou superviseur */}
+        <Route
+          path="/nostechniciens"
+          element={
+            <ProtectedRoute allowedRoles={["admin", "superieur"]}>
+              <GestTech />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Page 404 */}
         <Route
           path="*"
           element={

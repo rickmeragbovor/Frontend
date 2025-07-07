@@ -1,7 +1,13 @@
-import  { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "../api/axios";
 import EscaladeModal from "./EscaladeModal";
 import type { Ticket, User } from "../types";
+
+// Fonction utilitaire pour centraliser le header d'authentification
+const getAuthHeader = () => {
+  const token = localStorage.getItem("token");
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
 
 interface GestionTicketProps {
   ticket: Ticket;
@@ -22,8 +28,31 @@ const GestionTicket = ({ ticket, onClose, onCloture, tempsEcoule }: GestionTicke
 
   const fetchSuperieurs = async () => {
     try {
-      const response = await axios.get("/utilisateurs/?role=supérieur");
-      setSuperieurs(response.data);
+      const headers = getAuthHeader();
+      if (!headers.Authorization) {
+        alert("Utilisateur non authentifié.");
+        return;
+      }
+
+      const response = await axios.get("/superieurs/?role=supérieur", {
+        headers,
+      });
+
+      console.log("Superieurs reçus (brut) :", response.data);
+
+      // Transforme les données pour s'assurer que chaque utilisateur a un 'nom' (affichage complet)
+      const transformed = response.data.map((user: any) => ({
+        ...user,
+        nom:
+          user.nom ||
+          (user.first_name && user.last_name
+            ? `${user.first_name} ${user.last_name}`
+            : "Nom inconnu"),
+      }));
+
+      console.log("Superieurs transformés :", transformed);
+
+      setSuperieurs(transformed);
     } catch (error) {
       console.error("Erreur lors du chargement des supérieurs :", error);
       alert("Impossible de récupérer la liste des supérieurs.");
@@ -43,7 +72,14 @@ const GestionTicket = ({ ticket, onClose, onCloture, tempsEcoule }: GestionTicke
 
   const demanderCloture = async () => {
     try {
-      await axios.patch(`/tickets/${ticket.id}/demander-cloture/`);
+      const headers = getAuthHeader();
+      if (!headers.Authorization) {
+        alert("Utilisateur non authentifié.");
+        return;
+      }
+
+      await axios.patch(`/tickets/${ticket.id}/demander-cloture/`, {}, { headers });
+
       alert("Un lien de confirmation a été envoyé au client.");
       onCloture(ticket.id);
       onClose();
@@ -61,10 +97,18 @@ const GestionTicket = ({ ticket, onClose, onCloture, tempsEcoule }: GestionTicke
     commentaire: string;
   }) => {
     try {
-      await axios.post(`/tickets/${ticket.id}/escalader/`, {
-        superieur_id,
-        commentaire,
-      });
+      const headers = getAuthHeader();
+      if (!headers.Authorization) {
+        alert("Utilisateur non authentifié.");
+        return;
+      }
+
+      await axios.post(
+        `/tickets/${ticket.id}/escalader/`,
+        { superieur_id, commentaire },
+        { headers }
+      );
+
       alert("Le ticket a été escaladé avec succès !");
       setShowEscaladeModal(false);
       onClose();

@@ -1,11 +1,17 @@
-// src/pages/Ticketing.tsx
-
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "../api/axios";
 import Sidebar from "../components/Sidebar";
 import GestionTicket from "../components/GestionTicket";
 import type { Ticket, User } from "../types";
+
+// Statuts disponibles dans le filtre
+const STATUTS = [
+  "Escaladé",
+  "En attente",
+  "En attente de confirmation",
+  "Clôturé",
+];
 
 const Ticketing = () => {
   const [tickets, setTickets] = useState<Ticket[]>([]);
@@ -14,10 +20,11 @@ const Ticketing = () => {
   const [showModal, setShowModal] = useState(false);
   const [ticketActif, setTicketActif] = useState<Ticket | null>(null);
   const [timers, setTimers] = useState<Record<number, number>>({});
-  const intervalRef = useRef<NodeJS.Timeout | null>(null); // ❌ Type incompatible
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const navigate = useNavigate();
 
-  // Normaliser les statuts des tickets
+  const [statutFilter, setStatutFilter] = useState<string[]>([...STATUTS]);
+
   const normalizeStatut = (statutRaw: string | undefined): string => {
     if (!statutRaw) return "Inconnu";
     const clean = statutRaw
@@ -42,12 +49,16 @@ const Ticketing = () => {
       case "clôture":
       case "clôturé":
         return "Clôturé";
+      case "escalade":
+      case "escaladee":
+      case "escaladé":
+      case "escaladée":
+        return "Escaladé";
       default:
         return statutRaw.charAt(0).toUpperCase() + statutRaw.slice(1).toLowerCase();
     }
   };
 
-  // Récupérer les tickets et les infos utilisateur
   useEffect(() => {
     const token = localStorage.getItem("access");
     if (!token) {
@@ -80,7 +91,6 @@ const Ticketing = () => {
     fetchData();
   }, [navigate]);
 
-  // Gestion du minuteur pour le ticket actif
   useEffect(() => {
     if (ticketActif) {
       if (intervalRef.current) clearInterval(intervalRef.current);
@@ -106,7 +116,6 @@ const Ticketing = () => {
     };
   }, [ticketActif]);
 
-  // Clôturer un ticket
   const handleCloture = (ticketId: number) => {
     setTickets((prev) =>
       prev.map((t) => (t.id === ticketId ? { ...t, statut: "Clôturé" } : t))
@@ -163,25 +172,53 @@ const Ticketing = () => {
       case "clôture":
       case "clôturé":
         return { label: "Clôturé", className: "bg-green-100 text-green-800" };
+      case "escalade":
+      case "escaladee":
+      case "escaladé":
+      case "escaladée":
+        return { label: "Escaladé", className: "bg-red-100 text-red-800" };
       default:
         return { label: statutRaw, className: "bg-gray-200 text-gray-700" };
     }
   };
 
-  if (loading) return <div className="p-8 text-center">Chargement...</div>;
+  const ticketsFiltres = tickets
+    .filter((ticket) => {
+      const { label: statutLabel } = formatStatut(ticket.statut);
+      return statutFilter.includes(statutLabel);
+    })
+    .sort((a, b) => {
+      const priorite = (statut: string) => {
+        const s = statut.toLowerCase();
+        if (s.includes("escalade")) return 0;
+        if (s.includes("en attente")) return 1;
+        if (s.includes("confirmation")) return 2;
+        if (s.includes("en cours")) return 3;
+        if (s.includes("cloture") || s.includes("clôturé")) return 4;
+        return 5;
+      };
+      return priorite(a.statut) - priorite(b.statut);
+    });
 
-  if (!user) {
+  const toggleStatutFilter = (statut: string) => {
+    setStatutFilter((prev) =>
+      prev.includes(statut)
+        ? prev.filter((s) => s !== statut)
+        : [...prev, statut]
+    );
+  };
+
+  if (loading) return <div className="p-8 text-center">Chargement...</div>;
+  if (!user)
     return (
       <div className="p-8 text-center text-red-600">
         Utilisateur non authentifié.
       </div>
     );
-  }
 
   return (
     <div className="flex h-screen w-screen bg-gray-100 text-gray-800">
       <Sidebar user={user} onLogout={handleLogout} />
-
       <main className="flex-1 p-8 overflow-auto bg-gray-50">
         <h1 className="text-2xl font-bold mb-6">Bonjour, {user.prenom} !</h1>
 
@@ -190,7 +227,25 @@ const Ticketing = () => {
             Derniers tickets
           </h2>
 
-          {tickets.length === 0 ? (
+          {/* Filtre multi-choix */}
+          <div className="mb-4 flex flex-wrap gap-4">
+            {STATUTS.map((statut) => (
+              <label
+                key={statut}
+                className="inline-flex items-center cursor-pointer select-none"
+              >
+                <input
+                  type="checkbox"
+                  className="form-checkbox h-5 w-5 text-red-500"
+                  checked={statutFilter.includes(statut)}
+                  onChange={() => toggleStatutFilter(statut)}
+                />
+                <span className="ml-2">{statut}</span>
+              </label>
+            ))}
+          </div>
+
+          {ticketsFiltres.length === 0 ? (
             <p className="text-center text-gray-500">Aucun ticket trouvé.</p>
           ) : (
             <div className="overflow-x-auto">
@@ -207,13 +262,12 @@ const Ticketing = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {tickets.map((ticket) => {
+                  {ticketsFiltres.map((ticket) => {
                     const isDisabled =
                       ticketActif !== null && ticketActif.id !== ticket.id;
 
                     const { label: statutLabel, className: statutClass } =
                       formatStatut(ticket.statut);
-
                     const isCloture = statutLabel.toLowerCase() === "clôturé";
 
                     return (
@@ -273,7 +327,6 @@ const Ticketing = () => {
                                 Gérer
                               </button>
                             )}
-
                             {timers[ticket.id] > 0 && (
                               <span className="text-xs text-gray-600">
                                 {formatTemps(timers[ticket.id])}
@@ -291,7 +344,6 @@ const Ticketing = () => {
         </div>
       </main>
 
-      {/* Modal de gestion du ticket */}
       {showModal && ticketActif && (
         <GestionTicket
           ticket={ticketActif}

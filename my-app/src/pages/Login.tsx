@@ -1,4 +1,3 @@
-// src/pages/Login.tsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "../api/axios";
@@ -21,12 +20,30 @@ const Login = () => {
         password,
       });
 
-      localStorage.setItem("access", response.data.access);
-      localStorage.setItem("refresh", response.data.refresh);
+      const access = response.data.access;
+      const refresh = response.data.refresh;
+
+      if (!access || !refresh) {
+        throw new Error("Token manquant");
+      }
+
+      // Stocker les tokens
+      localStorage.setItem("access", access);
+      localStorage.setItem("refresh", refresh);
+      localStorage.setItem("token", access);
+
+      // 🔐 Récupérer l'utilisateur connecté
+      const userResponse = await axios.get("/utilisateurs/me/", {
+        headers: { Authorization: `Bearer ${access}` },
+      });
+
+      const user = userResponse.data;
+      localStorage.setItem("user", JSON.stringify(user));
 
       toast.success("Bienvenue !");
       navigate("/dashboard");
     } catch (error: any) {
+      console.error("Erreur lors de la connexion :", error);
       setErreur("Identifiants invalides. Veuillez réessayer.");
       toast.error("Identifiants invalides. Veuillez réessayer.");
     }

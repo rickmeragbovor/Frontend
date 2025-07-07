@@ -1,15 +1,25 @@
+// src/api/axios.ts
 import axios from "axios";
 
-const api = axios.create({
-  baseURL: "http://127.0.0.1:8000/api/", // ✅ Lien vers ton backend Django
+const instance = axios.create({
+  baseURL: "http://localhost:8000/api", // Modifie si ton backend est ailleurs
   headers: {
-    "Accept": "application/json",
     "Content-Type": "application/json",
   },
 });
 
-// ✅ Pour s'assurer que le Content-Type est toujours bien défini même pour POST dynamiques
-api.defaults.headers.post["Content-Type"] = "application/json";
+// Intercepteur pour ajouter automatiquement le token JWT
+instance.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("access") || localStorage.getItem("token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
-export default api;
-
+export default instance;

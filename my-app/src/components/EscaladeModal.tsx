@@ -29,18 +29,18 @@ const EscaladeModal = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (superieur_id === "") {
       toast.warn("Veuillez sélectionner un supérieur.");
       return;
     }
 
     setLoading(true);
-
     try {
       await onConfirm({ superieur_id: superieur_id as number, commentaire });
       toast.success("Ticket escaladé avec succès !");
       onClose();
-    } catch (e) {
+    } catch {
       toast.error("Erreur lors de l’escalade du ticket.");
     } finally {
       setLoading(false);
@@ -48,24 +48,28 @@ const EscaladeModal = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg max-w-md w-full p-6 relative shadow-lg">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+      <div className="relative w-full max-w-md rounded-lg bg-white p-6 shadow-lg">
         <button
           onClick={onClose}
-          className="absolute top-3 right-4 text-gray-600 hover:text-gray-900"
-          aria-label="Fermer la modale"
           disabled={loading}
+          aria-label="Fermer la modale"
+          className="absolute right-4 top-3 text-xl font-semibold text-red-400 transition hover:text-red-600"
         >
           ✖
         </button>
 
-        <h2 className="text-xl font-semibold mb-4 text-purple-600">
+        <h2 className="mb-5 text-xl font-semibold tracking-wide text-red-500">
           Escalader le Ticket #{ticketId}
         </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Sélection du supérieur */}
           <div>
-            <label htmlFor="superieur" className="block font-medium mb-1">
+            <label
+              htmlFor="superieur"
+              className="mb-2 block font-medium text-gray-700"
+            >
               Supérieur à contacter
             </label>
             <select
@@ -75,10 +79,12 @@ const EscaladeModal = ({
                 setSuperieurId(e.target.value === "" ? "" : Number(e.target.value))
               }
               disabled={loading}
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400"
               required
+              className="w-full cursor-pointer appearance-none rounded-md border border-red-300 bg-white px-4 py-3 font-medium text-gray-800 shadow-sm transition focus:outline-none focus:ring-2 focus:ring-red-400"
             >
-              <option value="">-- Choisissez un supérieur --</option>
+              <option value="" disabled>
+                -- Choisissez un supérieur --
+              </option>
               {superieurs.map((s) => (
                 <option key={s.id} value={s.id}>
                   {s.nom}
@@ -87,8 +93,12 @@ const EscaladeModal = ({
             </select>
           </div>
 
+          {/* Champ commentaire */}
           <div>
-            <label htmlFor="commentaire" className="block font-medium mb-1">
+            <label
+              htmlFor="commentaire"
+              className="mb-2 block font-medium text-gray-700"
+            >
               Commentaire (optionnel)
             </label>
             <textarea
@@ -97,24 +107,25 @@ const EscaladeModal = ({
               onChange={(e) => setCommentaire(e.target.value)}
               disabled={loading}
               rows={4}
-              className="w-full border border-gray-300 rounded px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-purple-400"
               placeholder="Ajoutez un commentaire pour le supérieur..."
+              className="w-full resize-none rounded-md border border-red-300 bg-white px-4 py-3 text-gray-700 placeholder-gray-400 transition focus:outline-none focus:ring-2 focus:ring-red-400"
             />
           </div>
 
-          <div className="flex justify-end space-x-3">
+          {/* Boutons d'action */}
+          <div className="flex justify-end space-x-4">
             <button
               type="button"
               onClick={onClose}
               disabled={loading}
-              className="px-4 py-2 rounded border border-gray-300 hover:bg-gray-100 transition"
+              className="rounded-md border border-red-300 px-5 py-2.5 font-semibold text-red-500 transition hover:bg-red-50 disabled:opacity-50"
             >
               Annuler
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-4 py-2 rounded bg-purple-400 hover:bg-purple-600 text-white font-semibold transition"
+              className="rounded-md bg-red-400 px-6 py-2.5 font-bold text-white transition hover:bg-red-500 disabled:opacity-60"
             >
               {loading ? "En cours..." : "Escalader"}
             </button>
