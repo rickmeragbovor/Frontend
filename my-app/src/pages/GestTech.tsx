@@ -8,10 +8,18 @@ import type { User } from "../types";
 
 const ITEMS_PER_PAGE = 5;
 
+interface FormData {
+  prenom: string;
+  nom: string;
+  email: string;
+  password?: string; // 👈 optionnel
+  role: string;
+}
+
 const GestTech = () => {
   const navigate = useNavigate();
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     prenom: "",
     nom: "",
     email: "",
@@ -63,12 +71,18 @@ const GestTech = () => {
     setLoading(true);
     try {
       if (editingId) {
-        await axios.put(`/utilisateurs/${editingId}/`, formData);
+        const payload = { ...formData };
+        if (!payload.password || payload.password.trim() === "") {
+          delete payload.password;
+        }
+
+        await axios.put(`/utilisateurs/${editingId}/`, payload); // ✅ correction ici
         toast.success("Utilisateur mis à jour !");
       } else {
         await axios.post("/utilisateurs/", formData);
         toast.success("Utilisateur créé !");
       }
+
       fetchUtilisateurs();
       setFormData({
         prenom: "",
@@ -127,7 +141,9 @@ const GestTech = () => {
   };
 
   const utilisateursFiltres = utilisateurs.filter((u) =>
-    `${u.prenom} ${u.nom} ${u.email}`.toLowerCase().includes(search.toLowerCase())
+    `${u.prenom} ${u.nom} ${u.email}`
+      .toLowerCase()
+      .includes(search.toLowerCase())
   );
 
   const totalPages = Math.ceil(utilisateursFiltres.length / ITEMS_PER_PAGE);
@@ -191,7 +207,9 @@ const GestTech = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium">Mot de passe</label>
+                <label className="block text-sm font-medium">
+                  Mot de passe
+                </label>
                 <input
                   type="password"
                   name="password"
@@ -210,8 +228,8 @@ const GestTech = () => {
                   className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-red-500"
                 >
                   <option value="technicien">Technicien</option>
-                  <option value="superieur">Supérieur</option>
-                  <option value="administrateur">Administrateur</option>
+                  <option value="supérieur">Supérieur</option>
+                  <option value="admin">Administrateur</option>
                 </select>
               </div>
 

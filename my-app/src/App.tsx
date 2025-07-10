@@ -133,7 +133,7 @@ function App() {
         <Route
           path="/nostechniciens"
           element={
-            <ProtectedRoute allowedRoles={["admin", "superieur"]}>
+            <ProtectedRoute allowedRoles={["admin", "supérieur"]}>
               <GestTech />
             </ProtectedRoute>
           }
