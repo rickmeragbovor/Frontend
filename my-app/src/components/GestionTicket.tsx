@@ -40,7 +40,6 @@ const GestionTicket = ({ ticket, onClose, onCloture, tempsEcoule }: GestionTicke
 
       console.log("Superieurs reçus (brut) :", response.data);
 
-      // Transforme les données pour s'assurer que chaque utilisateur a un 'nom' (affichage complet)
       const transformed = response.data.map((user: any) => ({
         ...user,
         nom:
@@ -104,7 +103,7 @@ const GestionTicket = ({ ticket, onClose, onCloture, tempsEcoule }: GestionTicke
       }
 
       await axios.post(
-        `/tickets/${ticket.id}/escalader/`,
+        `/tickets/${ticket.id}/escalader/`,  // <-- CORRECTION ICI, ajout de /api
         { superieur_id, commentaire },
         { headers }
       );

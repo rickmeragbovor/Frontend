@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 
 interface Superieur {
@@ -25,6 +25,15 @@ const EscaladeModal = ({
   const [commentaire, setCommentaire] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Reset form when modal is opened
+  useEffect(() => {
+    if (isOpen) {
+      setSuperieurId("");
+      setCommentaire("");
+      setLoading(false);
+    }
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -40,7 +49,7 @@ const EscaladeModal = ({
       await onConfirm({ superieur_id: superieur_id as number, commentaire });
       toast.success("Ticket escaladé avec succès !");
       onClose();
-    } catch {
+    } catch (error) {
       toast.error("Erreur lors de l’escalade du ticket.");
     } finally {
       setLoading(false);

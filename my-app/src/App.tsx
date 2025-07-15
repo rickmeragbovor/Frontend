@@ -22,6 +22,7 @@ import "react-toastify/dist/ReactToastify.css";
 import Ticketing from "./pages/Ticketing";
 import Stats from "./pages/Stats";
 import GestTech from "./pages/GestTech";
+import GestClient from "./pages/GestClient";
 
 function Home() {
   const heroRef = useRef<HTMLElement>(null);
@@ -135,6 +136,14 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["admin", "supérieur"]}>
               <GestTech />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/nosclients"
+          element={
+            <ProtectedRoute allowedRoles={["admin", "supérieur"]}>
+              <GestClient />
             </ProtectedRoute>
           }
         />
