@@ -54,9 +54,6 @@ const Navbar = ({ onNavigate }: Props) => {
           <Link to="/support" className={supportButton}>
             Support
           </Link>
-          <Link to="/login" className={loginButton}>
-            Se connecter
-          </Link>
         </div>
 
         {/* Burger menu mobile */}

@@ -58,14 +58,6 @@ export interface User {
   nom: string;
   prenom: string;
   email: string;
-  role?: string;
+  roles?: any[];
 }
 
-export interface Supérieur {
-  id: number;
-  nom: string;
-  prenom: string;
-  email: string;
-  telephone?: string;
-  // autres champs éventuels
-}

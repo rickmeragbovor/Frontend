@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Outlet } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
@@ -8,22 +8,22 @@ import Partners from "./components/Partners";
 import Contact from "./components/Contact";
 import Footer from "./components/Footer";
 
-import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
-import TicketForm from "./pages/TicketForm";
-import ConfirmationPage from "./pages/ConfirmationPage";
-
-import ProtectedRoute from "./components/ProtectedRoute";
-import GuestRoute from "./components/GuestRoute";
-
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Login from "./pages/UI/Login";
+import Dashboard from "./pages/UI/Dashboard";
+import Statistiques from "./pages/UI/Statistiques";
+import Customers from "./pages/UI/Customers";
+import Technicians from "./pages/UI/Technicians";
+import Ticketing from "./pages/UI/Ticketing";
+import Sidebar from "./components/Sidebar";
+import Users from "./pages/UI/Users";
+import Logiciels from "./pages/UI/Logiciels";
+import Ticketform from "./pages/UI/Ticketform";
+import ListeTickets from "./components/ticketing/ListeTickets";
+import Files from "./pages/UI/Files";
 
-import Ticketing from "./pages/Ticketing";
-import Stats from "./pages/Stats";
-import GestTech from "./pages/GestTech";
-import GestClient from "./pages/GestClient";
-
+// Page d'accueil
 function Home() {
   const heroRef = useRef<HTMLElement>(null);
   const servicesRef = useRef<HTMLElement>(null);
@@ -70,6 +70,7 @@ function Home() {
   );
 }
 
+// App principale
 function App() {
   return (
     <Router>
@@ -85,81 +86,24 @@ function App() {
         pauseOnHover
         theme="colored"
       />
-
       <Routes>
-        {/* ✅ Accès public */}
         <Route path="/" element={<Home />} />
-        <Route path="/support" element={<TicketForm />} />
-        <Route path="/confirm-cloture/:token" element={<ConfirmationPage />} />
-
-        {/* ✅ Routes publiques protégées */}
-        <Route
-          path="/login"
-          element={
-            <GuestRoute>
-              <Login />
-            </GuestRoute>
-          }
-        />
-
-        {/* ✅ Routes privées */}
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/ticketing"
-          element={
-            <ProtectedRoute>
-              <Ticketing />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/stats"
-          element={
-            <ProtectedRoute>
-              <Stats />
-            </ProtectedRoute>
-          }
-        />
-
-        {/* ✅ Route réservée aux admin ou superviseur */}
-        <Route
-          path="/nostechniciens"
-          element={
-            <ProtectedRoute allowedRoles={["admin", "supérieur"]}>
-              <GestTech />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/nosclients"
-          element={
-            <ProtectedRoute allowedRoles={["admin", "supérieur"]}>
-              <GestClient />
-            </ProtectedRoute>
-          }
-        />
-
-        {/* Page 404 */}
-        <Route
-          path="*"
-          element={
-            <p className="text-center mt-10 text-red-600 text-xl">
-              404 - Page non trouvée
-            </p>
-          }
-        />
+        <Route path="/support" element={<Login />} />
+        <Route path="/dashboard" element={<div className="flex h-screen w-screen bg-[#f5f5f5] text-gray-800"><Sidebar/><Outlet/></div>}>
+            <Route path="/dashboard/ticketing" element={<Ticketing />}/>
+            <Route path="/dashboard/statistiques" element={<Statistiques />}/>
+            <Route path="/dashboard/customers" element={<Customers/>}/>
+            <Route path="/dashboard/technicians" element={<Technicians/>}/>
+            <Route path="/dashboard/users" element={<Users/>}/>
+            <Route path="/dashboard/logiciels" element={<Logiciels/>}/>
+            <Route path="/dashboard/mes-tickets/nouveau" element={<Ticketform/>}/>
+            <Route path="/dashboard/mes-tickets" element={<ListeTickets/>}/>
+            <Route path="/dashboard/mes-clients" element={<Customers/>}/>
+            <Route path="/dashboard/mes-fichiers" element={<Files/>}/>
+            <Route index  element={<Dashboard/>}/>
+        </Route>
       </Routes>
     </Router>
   );
 }
-
 export default App;
