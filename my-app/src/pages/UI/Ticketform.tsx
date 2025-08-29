@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { toast } from "sonner";
 import axios from "../../api/axios";
-
 
 interface TypeProbleme {
   id: number;
@@ -19,7 +19,7 @@ interface Client {
 }
 
 interface PersonnelClient {
-  id: number; // id du lien PersonnelClient
+  id: number;
   client: Client;
 }
 
@@ -39,6 +39,7 @@ const TicketForm: React.FC = () => {
   const [typeProblemeId, setTypeProblemeId] = useState<number | null>(null);
   const [description, setDescription] = useState("");
   const [fichiers, setFichiers] = useState<FileList | null>(null);
+  const [loading, setLoading] = useState(false); // ✅ état pour "Veuillez patienter"
 
   const user: User = JSON.parse(localStorage.getItem("user") || "{}");
 
@@ -66,14 +67,14 @@ const TicketForm: React.FC = () => {
     e.preventDefault();
 
     if (!lienId || !selectedLogicielId || !typeProblemeId || !description.trim()) {
-      alert("Veuillez remplir tous les champs requis.");
+      toast.error("⚠️ Veuillez remplir tous les champs requis.");
       return;
     }
 
     const formData = new FormData();
-    formData.append("lien", String(lienId)); // FK vers PersonnelClient
-    formData.append("logiciel", String(selectedLogicielId)); // FK vers Logiciel
-    formData.append("type_probleme", String(typeProblemeId)); // champ additionnel à gérer côté backend
+    formData.append("lien", String(lienId));
+    formData.append("logiciel", String(selectedLogicielId));
+    formData.append("type_probleme", String(typeProblemeId));
     formData.append("description", description);
 
     if (fichiers) {
@@ -83,6 +84,8 @@ const TicketForm: React.FC = () => {
     }
 
     try {
+      setLoading(true); // ✅ active l'écran "Veuillez patienter"
+
       await axios.post("/api/tickets/", formData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -90,7 +93,10 @@ const TicketForm: React.FC = () => {
         },
       });
 
-      alert("✅ Ticket envoyé avec succès !");
+      // ✅ message confirmation
+      toast.success("🎉 Votre ticket a été créé avec succès !");
+      
+      // reset form
       setLienId(null);
       setSelectedLogicielId(null);
       setTypeProblemeId(null);
@@ -98,24 +104,34 @@ const TicketForm: React.FC = () => {
       setFichiers(null);
     } catch (error) {
       console.error("Erreur envoi ticket :", error);
-      alert("❌ Erreur lors de la création du ticket.");
+      toast.error("❌ Erreur lors de la création du ticket.");
+    } finally {
+      setLoading(false); // ✅ enlève le message d’attente
     }
   };
 
   return (
-    <main className="flex-1 p-8 bg-gray-100 min-h-screen">
+    <main className="flex-1 p-8 bg-gray-100 min-h-screen relative">
+      {/* ✅ Overlay de chargement */}
+      {loading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
+          <div className="bg-white px-6 py-4 rounded-xl shadow-lg text-center">
+            <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-red-600 mx-auto mb-3"></div>
+            <p className="text-gray-700 font-medium">⏳ Veuillez patienter, enregistrement du ticket...</p>
+          </div>
+        </div>
+      )}
+
       <h1 className="text-3xl font-bold mb-8 text-center text-gray-800">🎫 Créer un ticket</h1>
 
- <form
-  onSubmit={handleSubmit}
-  className="space-y-6 bg-white px-4 py-6 sm:px-6 md:px-8 lg:px-10 rounded-2xl shadow-xl w-full max-w-xl mx-auto border border-gray-200"
->
-
-
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-6 bg-white px-4 py-6 sm:px-6 md:px-8 lg:px-10 rounded-2xl shadow-xl w-full max-w-xl mx-auto border border-gray-200"
+      >
         {/* Client concerné */}
         <div>
           <label className="block text-sm font-medium mb-2 text-gray-800">
-            Client concerné <span className="text-red-500">*</span>
+            Projet/ Société concerné(e) <span className="text-red-500">*</span>
           </label>
           <select
             value={lienId ?? ""}
@@ -123,7 +139,7 @@ const TicketForm: React.FC = () => {
             className="w-full bg-white text-black border border-gray-300 rounded-xl px-4 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500"
             required
           >
-            <option value="">-- Sélectionner un client --</option>
+            <option value="">-- Sélectionner un projet --</option>
             {clients.map((pc) => (
               <option key={pc.id} value={pc.id}>
                 {pc.client.nom} ({pc.client.type})
@@ -207,9 +223,10 @@ const TicketForm: React.FC = () => {
         <div className="text-right pt-4">
           <button
             type="submit"
-            className="inline-flex items-center px-6 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl shadow transition duration-150"
+            className="inline-flex items-center px-6 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl shadow transition duration-150 disabled:opacity-50"
+            disabled={loading}
           >
-            ✅ Envoyer le ticket
+            {loading ? "⏳ Envoi..." : "✅ Valider"}
           </button>
         </div>
       </form>

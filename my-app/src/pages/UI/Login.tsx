@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+// import { toast, ToastContainer } from 'react-toastify';
+// import 'react-toastify/dist/ReactToastify.css';
+import { toast } from 'sonner'
 import axios from '../../api/axios';
 import { useNavigate } from "react-router-dom";
 
@@ -30,7 +31,7 @@ const Login = () => {
   };
   return (
     <>
-      <ToastContainer />
+      {/* <ToastContainer /> */}
       <div className="h-dvh w-dvw flex items-center justify-center bg-gray-100 px-4">
         <div className="flex w-full max-w-4xl bg-white shadow-2xl rounded-lg overflow-hidden border-t-4 border-red-500">
           {/* Logo / Infos */}

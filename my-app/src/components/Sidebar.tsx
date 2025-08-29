@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { useState } from "react";
 import { cn } from "../lib/utils";
 import type { User } from "../types";
@@ -17,12 +17,10 @@ import {
   FileText,
   File,
   BarChart2,
-  Clock,
   CheckCircle,
   PenBox,
   FolderOpen,
   History,
-  UserCheck,
   LineChart,
   PlusSquare,
 } from "lucide-react";
@@ -61,7 +59,12 @@ const sidebarSections: Record<Role, Section[]> = {
       key: "clients",
       title: "Clients",
       icon: <Building2 size={16} />,
-      to: "/dashboard/customers",
+       items: [
+        { label: "Projets actifs", icon: <Box size={16} />, to: "/dashboard/customers" },
+        { label: "Liste des projets  ", icon: <Boxes size={16} />, to: "/dashboard/projets" },
+        { label: "Statistiques", icon: <AlertCircle size={16} />, to: "/dashboard/projets-statistiques" },
+      ],
+     
     },
     {
       key: "logiciels",
@@ -69,7 +72,6 @@ const sidebarSections: Record<Role, Section[]> = {
       icon: <Boxes size={16} />,
       items: [
         { label: "Logiciels", icon: <Box size={16} />, to: "/dashboard/logiciels" },
-        { label: "Types de logiciels", icon: <Boxes size={16} />, to: "/dashboard/types-logiciels" },
         { label: "Types de problèmes", icon: <AlertCircle size={16} />, to: "/dashboard/types-problemes" },
       ],
     },
@@ -81,24 +83,30 @@ const sidebarSections: Record<Role, Section[]> = {
     },
     {
       key: "stats",
-      title: "Statistiques",
+      title: "Etats & Statistiques",
       icon: <BarChart2 size={16} />,
       items: [
-        { label: "Rapports", icon: <FileText size={16} />, to: "/dashboard/stats/rapports" },
-        { label: "Temps de traitement", icon: <Clock size={16} />, to: "/dashboard/stats/temps" },
-        { label: "Par technicien", icon: <UserCheck size={16} />, to: "/dashboard/stats/techniciens" },
+        { label: "Rapports", icon: <FileText size={16} />, to: "/dashboard/rapports" },
+        { label: "Suivi charge", icon: <BarChart2 size={16} />, to: "/dashboard/techniciens/charge" },
+        {label: "Performances", icon: <LineChart size={16} />, to: "/dashboard/techniciens/techperf"}
       ],
     },
   ],
 
   technicien: [
     {
+      key: "dashboard",
+      title: "Dashboard",
+      icon: <HomeIcon className="w-4 h-4" />,
+      to: "/dashboard",
+    },
+    {
       key: "mes_tickets",
       title: "Mes Tickets",
       icon: <Ticket size={16} />,
       items: [
-        { label: "À traiter", icon: <ClipboardList size={16} />, to: "/dashboard/mes-tickets/a-traiter" },
-        { label: "Clôturés", icon: <CheckCircle size={16} />, to: "/dashboard/mes-tickets/clotures" },
+        { label: "À traiter", icon: <ClipboardList size={16} />, to: "/dashboard/tickets/a-traiter" },
+        { label: "Clôturés", icon: <CheckCircle size={16} />, to: "/dashboard/tickets/clotures" },
       ],
     },
     {
@@ -106,29 +114,35 @@ const sidebarSections: Record<Role, Section[]> = {
       title: "Rapports",
       icon: <FileText size={16} />,
       items: [
-        { label: "Rédiger", icon: <PenBox size={16} />, to: "/dashboard/rapports/rediger" },
-        { label: "Mes rapports", icon: <FileText size={16} />, to: "/dashboard/rapports/mes-rapports" },
+        { label: "Ajouter", icon: <PenBox size={16} />, to: "/dashboard/rapports/ajouter" },
+        { label: "Mes rapports", icon: <FileText size={16} />, to: "/dashboard/rapports" },
       ],
     },
     {
-      key: "fichiers",
-      title: "Fichiers",
+      key: "Performance",
+      title: "Performance",
       icon: <File size={16} />,
       items: [
-        { label: "Voir fichiers liés", icon: <FolderOpen size={16} />, to: "/dashboard/fichiers" },
+        { label: "Mes performances", icon: <FolderOpen size={16} />, to: "/dashboard/performances" },
       ],
     },
   ],
 
   superviseur: [
     {
+      key: "dashboard",
+      title: "Dashboard",
+      icon: <HomeIcon className="w-4 h-4" />,
+      to: "/dashboard",
+    },
+    {
       key: "tickets",
       title: "Tickets",
       icon: <Ticket size={16} />,
       items: [
-        { label: "Tous les tickets", icon: <ClipboardList size={16} />, to: "/dashboard/tickets" },
-        { label: "Assigner ticket", icon: <UserPlus size={16} />, to: "/dashboard/tickets/assigner" },
-        { label: "Historique", icon: <History size={16} />, to: "/dashboard/tickets/historique" },
+        { label: "À traiter", icon: <ClipboardList size={16} />, to: "/dashboard/tickets/a-traiter"},
+        { label: "Escalades", icon: <UserPlus size={16} />, to: "/dashboard/tickets/escalades" },
+        { label: "Historique", icon: <History size={16} />, to: "/dashboard/tickets/clotures" },
       ],
     },
     {
@@ -137,36 +151,33 @@ const sidebarSections: Record<Role, Section[]> = {
       icon: <Users size={16} />,
       items: [
         { label: "Suivi charge", icon: <BarChart2 size={16} />, to: "/dashboard/techniciens/charge" },
-        { label: "Performance", icon: <LineChart size={16} />, to: "/dashboard/techniciens/performance" },
-      ],
-    },
-    {
-      key: "stats",
-      title: "Statistiques",
-      icon: <BarChart2 size={16} />,
-      items: [
-        { label: "Temps de traitement", icon: <Clock size={16} />, to: "/dashboard/stats/temps" },
-        { label: "Clôture par technicien", icon: <UserCheck size={16} />, to: "/dashboard/stats/cloture" },
+        
       ],
     },
   ],
 
   personnel: [
     {
+      key: "dashboard",
+      title: "Dashboard",
+      icon: <HomeIcon className="w-4 h-4" />,
+      to: "/dashboard",
+    },
+    {
       key: "mes_tickets",
       title: "Mes Tickets",
       icon: <Ticket size={16} />,
       items: [
-        { label: "Voir tickets", icon: <ClipboardList size={16} />, to: "/dashboard/mes-tickets" },
-        { label: "Créer ticket", icon: <PlusSquare size={16} />, to: "/dashboard/mes-tickets/nouveau" },
+        { label: "Voir tickets", icon: <ClipboardList size={16} />, to: "/dashboard/tickets" },
+        { label: "Créer ticket", icon: <PlusSquare size={16} />, to: "/dashboard/tickets/nouveau" },
       ],
     },
     {
       key: "mes_clients",
-      title: "Clients",
+      title: "Projets/Sociétés",
       icon: <Building2 size={16} />,
       items: [
-        { label: "Voir mes clients", icon: <Building2 size={16} />, to: "/dashboard/mes-clients" },
+        { label: "Liste", icon: <Building2 size={16} />, to: "/dashboard/clients" },
       ],
     },
     {
@@ -174,7 +185,7 @@ const sidebarSections: Record<Role, Section[]> = {
       title: "Fichiers",
       icon: <File size={16} />,
       items: [
-        { label: "Voir fichiers associés", icon: <FolderOpen size={16} />, to: "/dashboard/mes-fichiers" },
+        { label: "Voir fichiers associés", icon: <FolderOpen size={16} />, to: "/dashboard/fichiers" },
       ],
     },
   ],
@@ -201,7 +212,7 @@ const Sidebar = () => {
 
   const handleLogout = () => {
     localStorage.clear();
-    toast.success("Au revoir 👋", { autoClose: 1600 });
+    toast.success("Au revoir 👋");
     navigate("/support");
   };
 
